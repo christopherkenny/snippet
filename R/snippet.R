@@ -1,5 +1,4 @@
 snippet <- function(x = NULL) {
-
   # try clip if interactive
   if (is.null(x)) {
     if (interactive()) {
