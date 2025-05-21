@@ -36,16 +36,19 @@ snippet <- function(code,
     cli::cli_abort('Missing Typst template at {.path {template_path}}.')
   }
 
-  code_lines <- .read_lines(code)
+  code_lines <- read_lines(code)
   if (is.null(lang)) {
-    lang <- .infer_lang(code)
+    lang <- infer_lang(code)
   }
   if (!rlang::is_string(lang) || lang == '') {
     cli::cli_abort('Must supply a language name via {.arg lang}.')
   }
-
-  output_lines <- if (!is.null(output)) .read_lines(output) else character()
-  output_lines <- .comment_lines(output_lines, lang)
+  if (!is.null(output)) {
+    output_lines <-  read_lines(output)
+  } else {
+    output_lines <-  character()
+  }
+  output_lines <- comment_lines(output_lines, lang)
   all_lines <- c(code_lines, output_lines)
   code_block <- paste(all_lines, collapse = '\n')
 
@@ -54,10 +57,12 @@ snippet <- function(code,
     .open = '{{', .close = '}}',
     CODE = code_block,
     LANG = lang,
-    THEME = .theme_path(theme, tmp_dir),
+    THEME = theme_path(theme, tmp_dir),
     STYLE = style,
     BG = background
   )
+
+  #return(typst_src)
 
   typ_path <- fs::path(tmp_dir, 'snippet.typ')
   readr::write_file(typst_src, typ_path)
@@ -71,7 +76,7 @@ snippet <- function(code,
   typr::typr_compile(input = typ_path, output_file = output_file, output_format = format)
 }
 
-.read_lines <- function(x) {
+read_lines <- function(x) {
   if (length(x) == 1 && fs::file_exists(x)) {
     readr::read_lines(x)
   } else if (length(x) == 1 && grepl('\n', x)) {
@@ -83,7 +88,7 @@ snippet <- function(code,
   }
 }
 
-.infer_lang <- function(code) {
+infer_lang <- function(code) {
   if (length(code) == 1 && fs::file_exists(code)) {
     fs::path_ext(code)
   } else {
@@ -91,21 +96,21 @@ snippet <- function(code,
   }
 }
 
-.comment_lines <- function(lines, lang) {
+comment_lines <- function(lines, lang) {
   prefix <- switch(tolower(lang),
-    'r' = '#> ',
-    'python' = '# ',
-    'js' = '// ',
-    'cpp' = '// ',
-    'c' = '// ',
-    'html' = '<!-- ',
-    'css' = '/* ',
-    '#> ' # fallback
+                   'r' = '#> ',
+                   'python' = '# ',
+                   'js' = '// ',
+                   'cpp' = '// ',
+                   'c' = '// ',
+                   'html' = '<!-- ',
+                   'css' = '/* ',
+                   '#> ' # fallback
   )
   paste0(prefix, lines)
 }
 
-.theme_path <- function(theme, dir) {
+theme_path <- function(theme, dir) {
   if (theme %in% c('auto', 'none')) {
     return(theme)
   }

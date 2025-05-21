@@ -14,56 +14,68 @@
   )
 
   let win-buttons = stack(
-  dir: ltr,
-  spacing: 0.25em,
+    dir: ltr,
+    spacing: 0.25em,
 
-  // Minimize
-  block(
-    height: 1em,
-    width: 1em,
-    fill: luma(240),
-    radius: 2pt,
-    inset: 0.15em,
-  )[#align(center + horizon)[#sym.dash.em]],
+    // Minimize
+    block(
+      height: 1em,
+      width: 1em,
+      fill: luma(240),
+      radius: 2pt,
+      inset: 0.15em,
+    )[#align(center + horizon)[#sym.dash.em]],
 
-  // Maximize / Restore
-  block(
-    height: 1em,
-    width: 1em,
-    fill: luma(240),
-    radius: 2pt,
-  )[
+    // Maximize / Restore
+    block(
+      height: 1em,
+      width: 1em,
+      fill: luma(240),
+      radius: 2pt,
+    )[
+      #set align(center + horizon)
+      #rect(
+        height: 0.5em,
+        width: 0.5em,
+        radius: 0.1em,
+        stroke: 0.6pt + black
+      )
 
-    #set align(center + horizon)
-    #rect(
-  height: 0.5em,
-  width: 0.5em,
-  radius: 0.1em,
-  stroke: 0.6pt + black
-)
+      #place(
+        center + horizon,
+        dx: 1.25pt,
+        dy: -1.25pt
+      )[
+        #rect(
+          height: 0.5em,
+          width: 0.5em,
+          radius: (top-right: 0.1em),
+          stroke: (top: 0.6pt, right: 0.6pt, rest: none)
+        )
+      ]
 
-#place(
-  center+ horizon,
-  dx: 1.25pt,
-  dy: -1.25pt
-)[
-  #rect(
-  height: 0.5em,
-  width: 0.5em,
-  radius: (top-right: 0.1em),
-  stroke: (top: 0.6pt, right: 0.6pt, rest: none)
-)
-]],
+      #place(
+        center + horizon,
+        dx: 1.25pt,
+        dy: -1.25pt
+      )[
+        #rect(
+          height: 0.5em,
+          width: 0.5em,
+          radius: (top-right: 0.1em),
+          stroke: (top: 0.6pt, right: 0.6pt, rest: none)
+        )
+      ]
+    ],
 
-  // Close
-  block(
-    height: 1em,
-    width: 1em,
-    fill: luma(240),
-    radius: 2pt,
-
-  )[#align(center + bottom)[#text("×", 18pt)]]
-)
+    // Close
+    block(
+      height: 1em,
+      width: 1em,
+      fill: luma(240),
+      radius: 2pt,
+    )[#align(center + bottom)[#text("×", 18pt)]]
+  )
 
   // Determine layout content
   let (lft, cntr, rght) = if style == "mac" {
@@ -89,11 +101,7 @@
   } else {
     (
       none,
-      if title != none {
-        strong(title)
-      } else {
-        text("")
-      },
+      if title != none { strong(title) } else { text("") },
       none,
     )
   }
@@ -106,7 +114,6 @@
     width: 100%,
     spacing: 2em,
     [
-      // Title bar with shared background
       #box(
         width: 100%,
         radius: (top-left: 8pt, top-right: 8pt),
@@ -117,9 +124,7 @@
             lft, cntr, rght,
           )
         ],
-      )
-
-      // Code block using same background
+      ),
       #block(
         fill: background,
         inset: 0em,
@@ -132,3 +137,11 @@
     ],
   )
 }
+
+# Final invocation using glue placeholders
+#titled-raw-block(
+  title: "{TITLE}",
+  style: "{STYLE}",
+  background: rgb("{BACKGROUND}"),
+  raw(lang: "{{LANG}}", """{{CODE}}""")
+)
