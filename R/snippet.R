@@ -5,13 +5,13 @@
 #' evaluate code. Styling, syntax highlighting, and window style are all configurable.
 #'
 #' @param code Character vector, string, or file path. Code to render.
-#' @param output Optional. Character vector, string, or file path with output to show.
+#' @param output Optional. File path to save the rendered result. If `NULL`, a temporary file is created.
 #' @param lang Language name for syntax highlighting. Inferred from file if possible.
 #' @param title Optional. Title for the code snippet.
-#' @param style Window style: one of 'mac', 'windows', or 'none'.
+#' @param style Window style: one of `'mac'`, `'windows'`, or `'none'`.
 #' @param background Background color (hex or CSS color).
-#' @param theme Theme name or path to `.tmTheme` file. Use 'auto' or 'none' for built-ins.
-#' @param format Output format: 'pdf', 'png', or 'svg'.
+#' @param theme Theme name or path to `.tmTheme` file. Use `'auto'` or `'none'` for built-ins.
+#' @param format Output format, one of `'pdf'`, `'png'`, or `'svg'`.
 #' @param output_file File path to write the rendered result. If NULL, a temporary file is used.
 #'
 #' @return Invisibly, the path to the rendered file.
@@ -31,7 +31,7 @@ snippet <- function(code,
   style <- match.arg(style)
   format <- match.arg(format)
 
-  tmp_dir <- withr::local_tempdir()
+  tmp_dir <- tempdir()
 
   # handle potential template ----
   template_path <- fs::path_package(package = 'snippet', 'templates', 'main.typ')
@@ -39,7 +39,7 @@ snippet <- function(code,
     cli::cli_abort('Missing Typst template at {.path {template_path}}.')
   }
 
-  # handle langs ----
+  # handle code ----
   if (length(code) == 1 && fs::file_exists(code)) {
     code_lines <- readr::read_lines(code)
   } else if (length(code) == 1 && grepl('\n', code)) {
@@ -51,6 +51,7 @@ snippet <- function(code,
   }
   code_block <- paste(code_lines, collapse = '\n')
 
+  # handle langs ----
   if (is.null(lang)) {
     if (length(code) == 1 && fs::file_exists(code)) {
       lang <- fs::path_ext(code)
@@ -61,6 +62,13 @@ snippet <- function(code,
   }
 
   # set up output ----
+  if (is.null(output_file)) {
+    output_file <- fs::file_temp(pattern = 'snippet-', ext = format)
+  } else {
+    fs::dir_create(fs::path_dir(output_file))
+  }
+
+  # generate typ file ----
   typst_src <- glue::glue(
     readr::read_file(template_path),
     CODE = code_block,
@@ -75,16 +83,11 @@ snippet <- function(code,
   typ_path <- fs::path(tmp_dir, 'snippet.typ')
   readr::write_file(typst_src, typ_path)
 
-  if (is.null(output_file)) {
-    output_file <- fs::file_temp(pattern = 'snippet-', ext = format)
-  } else {
-    fs::dir_create(fs::path_dir(output_file))
-  }
-
+  # render and return path ----
   typr::typr_compile(input = typ_path, output_file = output_file, output_format = format)
 }
 
-theme_path <- function(theme, dir) {
+theme_path <- function(theme, dir = tempdir()) {
   if (theme %in% c('auto', 'none')) {
     return(theme)
   }

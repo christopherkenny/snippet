@@ -9,7 +9,7 @@ snippet(
   output = NULL,
   lang = NULL,
   title = "",
-  style = c("none", "mac", "windows"),
+  style = c("windows", "mac", "none"),
   background = "#CCCCCC",
   theme = "auto",
   format = c("png", "pdf", "svg"),
@@ -19,19 +19,19 @@ snippet(
 \arguments{
 \item{code}{Character vector, string, or file path. Code to render.}
 
-\item{output}{Optional. Character vector, string, or file path with output to show.}
+\item{output}{Optional. File path to save the rendered result. If \code{NULL}, a temporary file is created.}
 
 \item{lang}{Language name for syntax highlighting. Inferred from file if possible.}
 
 \item{title}{Optional. Title for the code snippet.}
 
-\item{style}{Window style: one of 'mac', 'windows', or 'none'.}
+\item{style}{Window style: one of \code{'mac'}, \code{'windows'}, or \code{'none'}.}
 
 \item{background}{Background color (hex or CSS color).}
 
-\item{theme}{Theme name or path to \code{.tmTheme} file. Use 'auto' or 'none' for built-ins.}
+\item{theme}{Theme name or path to \code{.tmTheme} file. Use \code{'auto'} or \code{'none'} for built-ins.}
 
-\item{format}{Output format: 'pdf', 'png', or 'svg'.}
+\item{format}{Output format, one of \code{'pdf'}, \code{'png'}, or \code{'svg'}.}
 
 \item{output_file}{File path to write the rendered result. If NULL, a temporary file is used.}
 }
