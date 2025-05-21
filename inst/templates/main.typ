@@ -1,3 +1,5 @@
+#set page(height: auto, width: 5in)
+
 #let titled-raw-block(
   body,
   title: none,
@@ -130,10 +132,9 @@
   )
 }
 
-# Final invocation using glue placeholders
 #titled-raw-block(
-  title: "{TITLE}",
-  style: "{STYLE}",
-  background: rgb("{BACKGROUND}"),
-  raw(lang: "{{LANG}}", """{{CODE}}""")
+  title: "{{TITLE}}",
+  style: "{{STYLE}}",
+  background: rgb("{{BACKGROUND}}"),
+  raw(lang: "{{LANG}}", "{{CODE}}")
 )

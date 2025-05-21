@@ -8,8 +8,9 @@ snippet(
   code,
   output = NULL,
   lang = NULL,
+  title = "",
   style = c("none", "mac", "windows"),
-  background = "#ffffff",
+  background = "#CCCCCC",
   theme = "auto",
   format = c("png", "pdf", "svg"),
   output_file = NULL
@@ -21,6 +22,8 @@ snippet(
 \item{output}{Optional. Character vector, string, or file path with output to show.}
 
 \item{lang}{Language name for syntax highlighting. Inferred from file if possible.}
+
+\item{title}{Optional. Title for the code snippet.}
 
 \item{style}{Window style: one of 'mac', 'windows', or 'none'.}
 
