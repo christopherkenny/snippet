@@ -32,28 +32,35 @@ snippet <- function(code,
   format <- match.arg(format)
 
   tmp_dir <- withr::local_tempdir()
-  template_path <- fs::path_package(package = 'snippet', 'templates', 'main.typ')
 
+  # handle potential template ----
+  template_path <- fs::path_package(package = 'snippet', 'templates', 'main.typ')
   if (!fs::file_exists(template_path)) {
     cli::cli_abort('Missing Typst template at {.path {template_path}}.')
   }
 
-  code_lines <- read_lines(code)
+  # handle langs ----
+  if (length(code) == 1 && fs::file_exists(code)) {
+    code_lines <- readr::read_lines(code)
+  } else if (length(code) == 1 && grepl('\n', code)) {
+    code_lines <- strsplit(code, '\r?\n')[[1]]
+  } else if (is.character(code)) {
+    code_lines <- code
+  } else {
+    cli::cli_abort('Input must be a character vector or a path to a text file.')
+  }
+  code_block <- paste(code_lines, collapse = '\n')
+
   if (is.null(lang)) {
-    lang <- infer_lang(code)
+    if (length(code) == 1 && fs::file_exists(code)) {
+      lang <- fs::path_ext(code)
+    }
   }
   if (!rlang::is_string(lang) || lang == '') {
     cli::cli_abort('Must supply a language name via {.arg lang}.')
   }
-  if (!is.null(output)) {
-    output_lines <-  read_lines(output)
-  } else {
-    output_lines <-  character()
-  }
 
-  all_lines <- c(code_lines, output_lines)
-  code_block <- paste(all_lines, collapse = '\n')
-
+  # set up output ----
   typst_src <- glue::glue(
     readr::read_file(template_path),
     CODE = code_block,
@@ -75,26 +82,6 @@ snippet <- function(code,
   }
 
   typr::typr_compile(input = typ_path, output_file = output_file, output_format = format)
-}
-
-read_lines <- function(x) {
-  if (length(x) == 1 && fs::file_exists(x)) {
-    readr::read_lines(x)
-  } else if (length(x) == 1 && grepl('\n', x)) {
-    strsplit(x, '\r?\n')[[1]]
-  } else if (is.character(x)) {
-    x
-  } else {
-    cli::cli_abort('Input must be a character vector or a path to a text file.')
-  }
-}
-
-infer_lang <- function(code) {
-  if (length(code) == 1 && fs::file_exists(code)) {
-    fs::path_ext(code)
-  } else {
-    NULL
-  }
 }
 
 theme_path <- function(theme, dir) {
