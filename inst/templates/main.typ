@@ -81,21 +81,13 @@
   let (lft, cntr, rght) = if style == "mac" {
     (
       mac-buttons,
-      if title != none {
-        strong(title)
-      } else {
-        text("")
-      },
+      if title != none { strong(title) } else { text("") },
       none,
     )
   } else if style == "windows" {
     (
       none,
-      if title != none {
-        strong(title)
-      } else {
-        text("")
-      },
+      if title != none { strong(title) } else { text("") },
       win-buttons,
     )
   } else {
