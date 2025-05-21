@@ -1,103 +1,74 @@
 #set page(height: auto, width: 5in)
 
-#let titled-raw-block(
-  body,
-  title: none,
-  style: "mac",
-  background: luma(230),
-) = {
+#let titled-raw-block(body, title: none, style: "mac", background: luma(230)) = {
   // Define button layouts using stack
   let mac-buttons = stack(
     dir: ltr,
     spacing: 0.15em,
     circle(radius: 0.3em, fill: rgb("FF5F56")),
     circle(radius: 0.3em, fill: rgb("FFBD2E")),
-    circle(radius: 0.3em, fill: rgb("27C93F")),
+    circle(radius: 0.3em, fill: rgb("27C93F"))
   )
 
-  let win-buttons = stack(
-    dir: ltr,
-    spacing: 0.25em,
+let win-buttons = stack(
+  dir: ltr,
+  spacing: 0.25em,
 
-    // Minimize
-    block(
-      height: 1em,
-      width: 1em,
-      fill: luma(240),
-      radius: 2pt,
-      inset: 0.15em,
-    )[#align(center + horizon)[#sym.dash.em]],
+  // Minimize
+  block(
+    height: 1em,
+    width: 1em,
+    fill: luma(240),
+    radius: 2pt,
+    inset: 0.15em,
+  )[#align(center + horizon)[#sym.dash.em]],
 
-    // Maximize / Restore
-    block(
-      height: 1em,
-      width: 1em,
-      fill: luma(240),
-      radius: 2pt,
-    )[
-      #set align(center + horizon)
-      #rect(
-        height: 0.5em,
-        width: 0.5em,
-        radius: 0.1em,
-        stroke: 0.6pt + black
-      )
+  // Maximize / Restore
+  block(
+    height: 1em,
+    width: 1em,
+    fill: luma(240),
+    radius: 2pt,
+  )[
 
-      #place(
-        center + horizon,
-        dx: 1.25pt,
-        dy: -1.25pt
-      )[
-        #rect(
-          height: 0.5em,
-          width: 0.5em,
-          radius: (top-right: 0.1em),
-          stroke: (top: 0.6pt, right: 0.6pt, rest: none)
-        )
-      ]
+    #set align(center + horizon)
+    #rect(
+  height: 0.5em,
+  width: 0.5em,
+  radius: 0.1em,
+  stroke: 0.6pt + black
+)
 
-      #place(
-        center + horizon,
-        dx: 1.25pt,
-        dy: -1.25pt
-      )[
-        #rect(
-          height: 0.5em,
-          width: 0.5em,
-          radius: (top-right: 0.1em),
-          stroke: (top: 0.6pt, right: 0.6pt, rest: none)
-        )
-      ]
-    ],
+#place(
+  center+ horizon,
+  dx: 1.25pt,
+  dy: -1.25pt
+)[
+  #rect(
+  height: 0.5em,
+  width: 0.5em,
+  radius: (top-right: 0.1em),
+  stroke: (top: 0.6pt, right: 0.6pt, rest: none)
+)
+]],
 
-    // Close
-    block(
-      height: 1em,
-      width: 1em,
-      fill: luma(240),
-      radius: 2pt,
-    )[#align(center + bottom)[#text("×", 18pt)]]
-  )
+  // Close
+  block(
+    height: 1em,
+    width: 1em,
+    fill: luma(240),
+    radius: 2pt,
+
+  )[#align(center + bottom)[#text("×", 18pt)]]
+)
 
   // Determine layout content
   let (lft, cntr, rght) = if style == "mac" {
-    (
-      mac-buttons,
-      if title != none { strong(title) } else { text("") },
-      none,
-    )
+    (mac-buttons, if title != none { strong(title) } else { text("") }, none)
   } else if style == "windows" {
-    (
-      none,
-      if title != none { strong(title) } else { text("") },
-      win-buttons,
-    )
+    (none, if title != none { strong(title) } else { text("") }, win-buttons)
   } else {
-    (
-      none,
-      if title != none { strong(title) } else { text("") },
-      none,
-    )
+    (none, if title != none { strong(title) } else { text("") }, none)
   }
 
   block(
@@ -108,6 +79,7 @@
     width: 100%,
     spacing: 2em,
     [
+      // Title bar with shared background
       #box(
         width: 100%,
         radius: (top-left: 8pt, top-right: 8pt),
@@ -115,10 +87,14 @@
           #grid(
             columns: (1fr, 1fr, 1fr),
             align: (left, center, right),
-            lft, cntr, rght,
+              lft,
+              cntr,
+              rght
           )
-        ],
-      ),
+        ]
+      )
+
+      // Code block using same background
       #block(
         fill: background,
         inset: 0em,
@@ -126,9 +102,9 @@
         outset: 0.75em,
         radius: (bottom-left: 8pt, bottom-right: 8pt),
         width: 100%,
-        body,
+        body
       )
-    ],
+    ]
   )
 }
 
