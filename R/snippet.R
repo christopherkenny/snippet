@@ -10,7 +10,9 @@
 #' @param lang Language name for syntax highlighting. Inferred from file if possible.
 #' @param title Optional. Title for the code snippet.
 #' @param style Window style: one of `'mac'`, `'windows'`, or `'none'`.
-#' @param background Background color (hex or CSS color).
+#' @param background Background color (hex or CSS color). If none is provided,
+#' defaults to the background color of the selected theme, if possible, Otherwise,
+#' falls back to `'#CCCCCC'`.
 #' @param theme Theme name or path to `.tmTheme` file. Use `'auto'` or `'none'` for built-ins.
 #' @param format Output format, one of `'pdf'`, `'png'`, or `'svg'`.
 #' @param output_file File path to write the rendered result. If NULL, a temporary file is used.
@@ -25,7 +27,7 @@ snippet <- function(code,
                     lang = NULL,
                     title = '',
                     style = c('windows', 'mac', 'none'),
-                    background = '#CCCCCC',
+                    background,
                     theme = 'auto',
                     format = c('png', 'pdf', 'svg'),
                     output_file = NULL) {
@@ -65,6 +67,16 @@ snippet <- function(code,
   }
   if (!rlang::is_string(lang) || lang == '') {
     cli::cli_abort('Must supply a language name via {.arg lang}.')
+  }
+
+  # handle background ----
+  if (missing(background)) {
+    if (!theme %in% c('auto', 'none')) {
+      background <- get_background_color(theme)
+    }
+  }
+  if (is.null(background)) {
+    background <- '#CCCCCC'
   }
 
   # set up output ----

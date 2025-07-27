@@ -22,4 +22,5 @@ Imports:
     glue,
     readr,
     rlang,
-    typr
+    typr,
+    xml2
