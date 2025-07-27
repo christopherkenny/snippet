@@ -4,7 +4,8 @@
 #' using a Typst template and the typr package. It is purely visual and does not
 #' evaluate code. Styling, syntax highlighting, and window style are all configurable.
 #'
-#' @param code Character vector, string, or file path. Code to render.
+#' @param code Character vector, string, or file path. Code to render. If nothing
+#' is supplied, it defaults to reading your current clipboard contents.
 #' @param output Optional. File path to save the rendered result. If `NULL`, a temporary file is created.
 #' @param lang Language name for syntax highlighting. Inferred from file if possible.
 #' @param title Optional. Title for the code snippet.
@@ -40,7 +41,12 @@ snippet <- function(code,
   }
 
   # handle code ----
-  if (length(code) == 1 && fs::file_exists(code)) {
+  if (missing(code)) {
+    code <- clipr::read_clip()
+    if (is.null(code) || code == '') {
+      cli::cli_abort('No code provided and clipboard is empty.')
+    }
+  } else if (length(code) == 1 && fs::file_exists(code)) {
     code_lines <- readr::read_lines(code)
   } else if (length(code) == 1 && grepl('\n', code)) {
     code_lines <- strsplit(code, '\r?\n')[[1]]
@@ -83,8 +89,15 @@ snippet <- function(code,
   typ_path <- fs::path(tmp_dir, 'snippet.typ')
   readr::write_file(typst_src, typ_path)
 
-  # render and return path ----
-  typr::typr_compile(input = typ_path, output_file = output_file, output_format = format)
+  # render path ----
+  out <- typr::typr_compile(input = typ_path, output_file = output_file, output_format = format)
+
+  # open in viewer ----
+  if (rstudioapi::isAvailable()) {
+    rstudioapi::viewer(out)
+  }
+
+  out
 }
 
 theme_path <- function(theme, dir = tempdir()) {
