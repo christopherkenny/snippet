@@ -10,14 +10,15 @@ snippet(
   lang = NULL,
   title = "",
   style = c("windows", "mac", "none"),
-  background = "#CCCCCC",
+  background,
   theme = "auto",
   format = c("png", "pdf", "svg"),
   output_file = NULL
 )
 }
 \arguments{
-\item{code}{Character vector, string, or file path. Code to render.}
+\item{code}{Character vector, string, or file path. Code to render. If nothing
+is supplied, it defaults to reading your current clipboard contents.}
 
 \item{output}{Optional. File path to save the rendered result. If \code{NULL}, a temporary file is created.}
 
@@ -27,7 +28,9 @@ snippet(
 
 \item{style}{Window style: one of \code{'mac'}, \code{'windows'}, or \code{'none'}.}
 
-\item{background}{Background color (hex or CSS color).}
+\item{background}{Background color (hex or CSS color). If none is provided,
+defaults to the background color of the selected theme, if possible, Otherwise,
+falls back to \code{'#CCCCCC'}.}
 
 \item{theme}{Theme name or path to \code{.tmTheme} file. Use \code{'auto'} or \code{'none'} for built-ins.}
 

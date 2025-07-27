@@ -75,7 +75,7 @@ snippet <- function(code,
       background <- get_background_color(theme)
     }
   }
-  if (is.null(background)) {
+  if (missing(background) || is.null(background)) {
     background <- '#CCCCCC'
   }
 
