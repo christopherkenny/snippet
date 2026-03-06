@@ -1,0 +1,16 @@
+url: https://christopherkenny.github.io/snippet/
+
+template:
+  bootstrap: 5
+
+reference:
+- title: Create code snippets
+  contents:
+  - snippet
+
+- title: Themes
+  contents:
+  - snippet_themes
+  - snippet_known_themes
+  - snippet_install_theme
+  - convert_theme

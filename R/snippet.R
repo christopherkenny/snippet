@@ -1,38 +1,53 @@
 #' Render a code snippet using Typst
 #'
-#' This function renders a static code snippet (and optionally, expected output)
-#' using a Typst template and the typr package. It is purely visual and does not
-#' evaluate code. Styling, syntax highlighting, and window style are all configurable.
+#' This function renders a static code snippet using a Typst template and the
+#' typr package. It is purely visual and does not evaluate code. Styling,
+#' syntax highlighting, and window style are all configurable.
 #'
-#' @param code Character vector, string, or file path. Code to render. If nothing
-#' is supplied, it defaults to reading your current clipboard contents.
-#' @param output Optional. File path to save the rendered result. If `NULL`, a temporary file is created.
-#' @param lang Language name for syntax highlighting. Inferred from file if possible.
-#' @param title Optional. Title for the code snippet.
+#' @param code Character vector, string, or file path. Code to render. If
+#' nothing is supplied, it defaults to reading your current clipboard contents.
+#' @param lang Language name for syntax highlighting. Inferred from file
+#' extension if `code` is a path, otherwise defaults to `'r'`.
+#' @param title Optional title for the code snippet.
 #' @param style Window style: one of `'mac'`, `'windows'`, or `'none'`.
-#' @param background Background color (hex or CSS color). If none is provided,
-#' defaults to the background color of the selected theme, if possible, Otherwise,
-#' falls back to `'#CCCCCC'`.
-#' @param theme Theme name or path to `.tmTheme` file. Use `'auto'` or `'none'` for built-ins.
+#' @param background Background color as a hex string. If not provided,
+#' defaults to the background color of the selected theme, or `'#CCCCCC'`.
+#' @param theme Theme name or path to a `.tmTheme` file. Use `'auto'` or
+#' `'none'` for Typst's built-in options. See [snippet_themes()] for bundled
+#' themes.
+#' @param width Width of the rendered output in inches. Defaults to `5`.
+#' @param line_numbers Whether to show line numbers. Defaults to `FALSE`.
 #' @param format Output format, one of `'pdf'`, `'png'`, or `'svg'`.
-#' @param output_file File path to write the rendered result. If NULL, a temporary file is used.
+#' @param clip Whether to copy the rendered image to the system clipboard.
+#' Only supported when `format = 'png'`. Defaults to `FALSE`.
+#' @param output_file File path to write the rendered result. If `NULL`, a
+#' temporary file is used.
 #'
 #' @return Invisibly, the path to the rendered file.
 #' @export
 #'
 #' @examples
-#' snippet('x <- 1:10\nmean(x)', lang = 'r')
+#' \dontrun{
+#' snippet('x <- 1:10\nmean(x)')
+#' }
 snippet <- function(code,
-                    output = NULL,
                     lang = NULL,
                     title = '',
                     style = c('windows', 'mac', 'none'),
                     background,
                     theme = 'auto',
+                    width = 5,
+                    line_numbers = FALSE,
                     format = c('png', 'pdf', 'svg'),
+                    clip = FALSE,
                     output_file = NULL) {
   style <- match.arg(style)
   format <- match.arg(format)
+
+  if (isTRUE(clip) && format != 'png') {
+    cli::cli_warn('{.arg clip} is only supported for PNG format. Skipping.')
+    clip <- FALSE
+  }
 
   tmp_dir <- tempdir()
 
@@ -44,18 +59,18 @@ snippet <- function(code,
 
   # handle code ----
   if (missing(code)) {
-    code <- clipr::read_clip()
-    if (is.null(code) || code == '') {
+    code_lines <- clipr::read_clip()
+    if (is.null(code_lines) || length(code_lines) == 0 || all(code_lines == '')) {
       cli::cli_abort('No code provided and clipboard is empty.')
     }
+  } else if (!is.character(code)) {
+    cli::cli_abort('Input must be a character vector or a path to a text file.')
   } else if (length(code) == 1 && fs::file_exists(code)) {
     code_lines <- readr::read_lines(code)
   } else if (length(code) == 1 && grepl('\n', code)) {
     code_lines <- strsplit(code, '\r?\n')[[1]]
-  } else if (is.character(code)) {
-    code_lines <- code
   } else {
-    cli::cli_abort('Input must be a character vector or a path to a text file.')
+    code_lines <- code
   }
   code_block <- paste(code_lines, collapse = '\n')
 
@@ -64,12 +79,12 @@ snippet <- function(code,
     if (length(code) == 1 && fs::file_exists(code)) {
       lang <- fs::path_ext(code)
     }
-  }
-  if (!rlang::is_string(lang) || lang == '') {
-    cli::cli_abort('Must supply a language name via {.arg lang}.')
+    if (is.null(lang) || !nzchar(lang)) {
+      lang <- 'r'
+    }
   }
 
-  # handle background ----
+  # handle background and foreground ----
   if (missing(background)) {
     if (!theme %in% c('auto', 'none')) {
       background <- get_background_color(theme)
@@ -79,6 +94,12 @@ snippet <- function(code,
     background <- '#CCCCCC'
   }
 
+  foreground <- '#000000'
+  if (!theme %in% c('auto', 'none')) {
+    fg <- get_foreground_color(theme)
+    if (!is.null(fg)) foreground <- fg
+  }
+
   # set up output ----
   if (is.null(output_file)) {
     output_file <- fs::file_temp(pattern = 'snippet-', ext = format)
@@ -86,30 +107,40 @@ snippet <- function(code,
     fs::dir_create(fs::path_dir(output_file))
   }
 
+  # write code to file to avoid quote escaping and glue injection issues ----
+  readr::write_file(code_block, fs::path(tmp_dir, 'snippet-code.txt'))
+
   # generate typ file ----
   typst_src <- glue::glue(
     readr::read_file(template_path),
-    CODE = code_block,
     LANG = lang,
     TITLE = title,
     THEME = theme_path(theme, tmp_dir),
     STYLE = style,
     BACKGROUND = background,
+    FOREGROUND = foreground,
+    WIDTH = width,
+    LINE_NUMBERS = if (isTRUE(line_numbers)) '"1"' else 'none',
     .open = '{{', .close = '}}',
   )
 
   typ_path <- fs::path(tmp_dir, 'snippet.typ')
   readr::write_file(typst_src, typ_path)
 
-  # render path ----
-  out <- typr::typr_compile(input = typ_path, output_file = output_file, output_format = format)
+  # render ----
+  out <- typr_compile(input = typ_path, output_file = output_file, output_format = format)
+
+  # copy to clipboard ----
+  if (isTRUE(clip)) {
+    copy_image_to_clipboard(out)
+  }
 
   # open in viewer ----
-  if (rstudioapi::isAvailable()) {
+  if (requireNamespace('rstudioapi', quietly = TRUE) && rstudioapi::isAvailable()) {
     rstudioapi::viewer(out)
   }
 
-  out
+  invisible(out)
 }
 
 theme_path <- function(theme, dir = tempdir()) {
@@ -120,6 +151,10 @@ theme_path <- function(theme, dir = tempdir()) {
     cli::cli_abort('Theme file {.path {theme}} not found.')
   }
   dest <- fs::path(dir, fs::path_file(theme))
-  fs::file_copy(theme, dest)
-  glue::glue('\"{fs::path_file(theme)}\"')
+  fs::file_copy(theme, dest, overwrite = TRUE)
+  glue::glue('"{fs::path_file(theme)}"')
+}
+
+typr_compile <- function(input, output_file, output_format) {
+  typr::typr_compile(input = input, output_file = output_file, output_format = output_format)
 }

@@ -2,15 +2,17 @@
 % Please edit documentation in R/themes.R
 \name{snippet_themes}
 \alias{snippet_themes}
-\title{Return paths to themes included in the snippet package}
+\title{Return paths to themes available in snippet}
 \usage{
 snippet_themes()
 }
 \value{
-A character vector of file paths to the themes
+A named character vector of file paths to available themes.
+Names are human-readable theme names derived from file names.
 }
 \description{
-Return paths to themes included in the snippet package
+Returns paths to both bundled themes and any themes previously installed
+with \code{\link[=snippet_install_theme]{snippet_install_theme()}}.
 }
 \examples{
 snippet_themes()

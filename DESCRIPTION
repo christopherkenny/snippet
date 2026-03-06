@@ -11,16 +11,22 @@ Description: Render typeset code snippets using 'Typst'. Supports syntax
     highlighting for many languages, multiple output formats, and 
     theming via 'tmTheme' files. Designed for documentation, teaching materials, 
     and reproducible code presentation.
+URL: https://christopherkenny.github.io/snippet/, https://github.com/christopherkenny/snippet
+BugReports: https://github.com/christopherkenny/snippet/issues
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Imports:
     cli,
     clipr,
     fs,
     glue,
     readr,
-    rlang,
     typr,
     xml2
+Suggests:
+    jsonlite,
+    rstudioapi,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3

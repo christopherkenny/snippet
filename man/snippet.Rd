@@ -6,46 +6,58 @@
 \usage{
 snippet(
   code,
-  output = NULL,
   lang = NULL,
   title = "",
   style = c("windows", "mac", "none"),
   background,
   theme = "auto",
+  width = 5,
+  line_numbers = FALSE,
   format = c("png", "pdf", "svg"),
+  clip = FALSE,
   output_file = NULL
 )
 }
 \arguments{
-\item{code}{Character vector, string, or file path. Code to render. If nothing
-is supplied, it defaults to reading your current clipboard contents.}
+\item{code}{Character vector, string, or file path. Code to render. If
+nothing is supplied, it defaults to reading your current clipboard contents.}
 
-\item{output}{Optional. File path to save the rendered result. If \code{NULL}, a temporary file is created.}
+\item{lang}{Language name for syntax highlighting. Inferred from file
+extension if \code{code} is a path, otherwise defaults to \code{'r'}.}
 
-\item{lang}{Language name for syntax highlighting. Inferred from file if possible.}
-
-\item{title}{Optional. Title for the code snippet.}
+\item{title}{Optional title for the code snippet.}
 
 \item{style}{Window style: one of \code{'mac'}, \code{'windows'}, or \code{'none'}.}
 
-\item{background}{Background color (hex or CSS color). If none is provided,
-defaults to the background color of the selected theme, if possible, Otherwise,
-falls back to \code{'#CCCCCC'}.}
+\item{background}{Background color as a hex string. If not provided,
+defaults to the background color of the selected theme, or \code{'#CCCCCC'}.}
 
-\item{theme}{Theme name or path to \code{.tmTheme} file. Use \code{'auto'} or \code{'none'} for built-ins.}
+\item{theme}{Theme name or path to a \code{.tmTheme} file. Use \code{'auto'} or
+\code{'none'} for Typst's built-in options. See \code{\link[=snippet_themes]{snippet_themes()}} for bundled
+themes.}
+
+\item{width}{Width of the rendered output in inches. Defaults to \code{5}.}
+
+\item{line_numbers}{Whether to show line numbers. Defaults to \code{FALSE}.}
 
 \item{format}{Output format, one of \code{'pdf'}, \code{'png'}, or \code{'svg'}.}
 
-\item{output_file}{File path to write the rendered result. If NULL, a temporary file is used.}
+\item{clip}{Whether to copy the rendered image to the system clipboard.
+Only supported when \code{format = 'png'}. Defaults to \code{FALSE}.}
+
+\item{output_file}{File path to write the rendered result. If \code{NULL}, a
+temporary file is used.}
 }
 \value{
 Invisibly, the path to the rendered file.
 }
 \description{
-This function renders a static code snippet (and optionally, expected output)
-using a Typst template and the typr package. It is purely visual and does not
-evaluate code. Styling, syntax highlighting, and window style are all configurable.
+This function renders a static code snippet using a Typst template and the
+typr package. It is purely visual and does not evaluate code. Styling,
+syntax highlighting, and window style are all configurable.
 }
 \examples{
-snippet('x <- 1:10\nmean(x)', lang = 'r')
+\dontrun{
+snippet('x <- 1:10\nmean(x)')
+}
 }

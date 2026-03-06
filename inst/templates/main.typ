@@ -1,4 +1,6 @@
-#set page(height: auto, width: 5in)
+#set page(height: auto, width: {{WIDTH}}in)
+#set raw(theme: {{THEME}})
+#set text(fill: rgb("{{FOREGROUND}}"))
 
 #let titled-raw-block(body, title: none, style: "mac", background: luma(230)) = {
   // Define button layouts using stack
@@ -112,5 +114,5 @@ let win-buttons = stack(
   title: "{{TITLE}}",
   style: "{{STYLE}}",
   background: rgb("{{BACKGROUND}}"),
-  raw(lang: "{{LANG}}", "{{CODE}}")
+  raw(lang: "{{LANG}}", numbering: {{LINE_NUMBERS}}, read("snippet-code.txt"))
 )
