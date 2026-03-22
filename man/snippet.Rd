@@ -32,9 +32,8 @@ extension if \code{code} is a path, otherwise defaults to \code{'r'}.}
 \item{background}{Background color as a hex string. If not provided,
 defaults to the background color of the selected theme, or \code{'#CCCCCC'}.}
 
-\item{theme}{Theme name or path to a \code{.tmTheme} file. Use \code{'auto'} or
-\code{'none'} for Typst's built-in options. See \code{\link[=snippet_themes]{snippet_themes()}} for bundled
-themes.}
+\item{theme}{Theme name from \code{\link[=snippet_themes]{snippet_themes()}} or path to a \code{.tmTheme}
+file. Use \code{'auto'} or \code{'none'} for Typst's built-in options.}
 
 \item{width}{Width of the rendered output in inches. Defaults to \code{5}.}
 
@@ -43,7 +42,9 @@ themes.}
 \item{format}{Output format, one of \code{'pdf'}, \code{'png'}, or \code{'svg'}.}
 
 \item{clip}{Whether to copy the rendered image to the system clipboard.
-Only supported when \code{format = 'png'}. Defaults to \code{FALSE}.}
+Only supported when \code{format = 'png'}. Clipboard support is best effort and
+may depend on platform-specific tools, especially on Linux. Defaults to
+\code{FALSE}.}
 
 \item{output_file}{File path to write the rendered result. If \code{NULL}, a
 temporary file is used.}

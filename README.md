@@ -4,24 +4,98 @@
 # snippet
 
 <!-- badges: start -->
+
 <!-- badges: end -->
 
-The goal of `snippet` is to …
+`snippet` creates shareable, syntax-highlighted code images directly
+from your R session — like [carbon.now.sh](https://carbon.now.sh) but
+without leaving R. It uses [Typst](https://typst.app) for rendering, so
+images are crisp at any size and fully themeable.
 
 ## Installation
 
-You can install the development version of `snippet` from
-[GitHub](https://github.com/christopherkenny/snippet) with:
+Install the development version from
+[GitHub](https://github.com/christopherkenny/snippet):
 
 ``` r
 pak::pak('christopherkenny/snippet')
 ```
 
-## Example
+`snippet` also requires [Typst](https://typst.app) to be installed on
+your system. If you have Quarto installed, it will use its bundled Typst
+as a fallback.
 
-This is a basic example which shows you how to solve a common problem:
+## Usage
+
+Pass code as a string, a character vector, or a file path. Leave `code`
+empty to use your clipboard:
 
 ``` r
 library(snippet)
-## basic example code
+
+snippet('fit <- lm(mpg ~ wt, data = mtcars)\nsummary(fit)')
+```
+
+### Themes
+
+Two [Flexoki](https://stephango.com/flexoki) themes are bundled. List
+available themes with `snippet_themes()`:
+
+``` r
+snippet(
+  'fit <- lm(mpg ~ wt, data = mtcars)',
+  theme = 'Flexoki Dark'
+)
+```
+
+Install additional themes by name with `snippet_install_theme()`. See
+the full list with `snippet_known_themes()`:
+
+``` r
+snippet_install_theme('Dracula')
+snippet_install_theme('Tomorrow Night')
+
+snippet('fit <- lm(mpg ~ wt, data = mtcars)', theme = 'Dracula')
+```
+
+You can also install any theme from a URL or local file path:
+
+``` r
+snippet_install_theme('https://example.com/my-theme.tmTheme')
+snippet_install_theme('/path/to/my-theme.tmTheme')
+```
+
+Or convert any VS Code JSON theme with `convert_theme()`:
+
+``` r
+convert_theme('path/to/my-vscode-theme.json')
+```
+
+### Window styles
+
+``` r
+snippet('x <- 1', style = 'mac')      # macOS traffic lights
+snippet('x <- 1', style = 'windows')  # Windows controls
+snippet('x <- 1', style = 'none')     # no chrome
+```
+
+### Line numbers and width
+
+``` r
+snippet(
+  'x <- 1:10\nmean(x)\nsd(x)',
+  line_numbers = TRUE,
+  width = 4
+)
+```
+
+### Copy to clipboard
+
+Set `clip = TRUE` to attempt to copy the rendered PNG to your system
+clipboard immediately after rendering. This is a convenience feature, is
+only supported for PNG output, and may depend on platform-specific
+clipboard tools, especially on Linux:
+
+``` r
+snippet('x <- 1:10', clip = TRUE)
 ```

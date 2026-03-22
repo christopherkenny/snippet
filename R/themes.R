@@ -157,6 +157,33 @@ download_theme <- function(url, dest, overwrite = FALSE) {
   invisible(as.character(dest))
 }
 
+resolve_theme <- function(theme) {
+  if (theme %in% c('auto', 'none')) {
+    return(theme)
+  }
+
+  available_themes <- snippet_themes()
+  if (theme %in% names(available_themes)) {
+    return(unname(available_themes[[theme]]))
+  }
+
+  theme
+}
+
+typst_escape_string <- function(x) {
+  x <- gsub('\\\\', '\\\\\\\\', x)
+  x <- gsub('"', '\\"', x, fixed = TRUE)
+  x
+}
+
+typst_string <- function(x) {
+  glue::glue('"{typst_escape_string(x)}"')
+}
+
+typst_path <- function(path) {
+  normalizePath(path, winslash = '/', mustWork = TRUE)
+}
+
 theme_path <- function(theme, dir = tempdir()) {
   if (theme %in% c('auto', 'none')) {
     return(theme)
@@ -164,7 +191,5 @@ theme_path <- function(theme, dir = tempdir()) {
   if (!fs::file_exists(theme)) {
     cli::cli_abort('Theme file {.path {theme}} not found.')
   }
-  dest <- fs::path(dir, fs::path_file(theme))
-  fs::file_copy(theme, dest, overwrite = TRUE)
-  glue::glue('"{fs::path_file(theme)}"')
+  typst_string(typst_path(theme))
 }

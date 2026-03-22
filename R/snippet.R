@@ -12,14 +12,15 @@
 #' @param style Window style: one of `'mac'`, `'windows'`, or `'none'`.
 #' @param background Background color as a hex string. If not provided,
 #' defaults to the background color of the selected theme, or `'#CCCCCC'`.
-#' @param theme Theme name or path to a `.tmTheme` file. Use `'auto'` or
-#' `'none'` for Typst's built-in options. See [snippet_themes()] for bundled
-#' themes.
+#' @param theme Theme name from [snippet_themes()] or path to a `.tmTheme`
+#' file. Use `'auto'` or `'none'` for Typst's built-in options.
 #' @param width Width of the rendered output in inches. Defaults to `5`.
 #' @param line_numbers Whether to show line numbers. Defaults to `FALSE`.
 #' @param format Output format, one of `'pdf'`, `'png'`, or `'svg'`.
 #' @param clip Whether to copy the rendered image to the system clipboard.
-#' Only supported when `format = 'png'`. Defaults to `FALSE`.
+#' Only supported when `format = 'png'`. Clipboard support is best effort and
+#' may depend on platform-specific tools, especially on Linux. Defaults to
+#' `FALSE`.
 #' @param output_file File path to write the rendered result. If `NULL`, a
 #' temporary file is used.
 #'
@@ -43,13 +44,14 @@ snippet <- function(code,
                     output_file = NULL) {
   style <- match.arg(style)
   format <- match.arg(format)
+  code_is_path <- FALSE
 
   if (isTRUE(clip) && format != 'png') {
     cli::cli_warn('{.arg clip} is only supported for PNG format. Skipping.')
     clip <- FALSE
   }
 
-  tmp_dir <- tempdir()
+  tmp_dir <- fs::dir_create(fs::file_temp(pattern = 'snippet-'))
 
   # handle potential template ----
   template_path <- fs::path_package(package = 'snippet', 'templates', 'main.typ')
@@ -66,6 +68,7 @@ snippet <- function(code,
   } else if (!is.character(code)) {
     cli::cli_abort('Input must be a character vector or a path to a text file.')
   } else if (length(code) == 1 && fs::file_exists(code)) {
+    code_is_path <- TRUE
     code_lines <- readr::read_lines(code)
   } else if (length(code) == 1 && grepl('\n', code)) {
     code_lines <- strsplit(code, '\r?\n')[[1]]
@@ -76,13 +79,15 @@ snippet <- function(code,
 
   # handle langs ----
   if (is.null(lang)) {
-    if (length(code) == 1 && fs::file_exists(code)) {
+    if (isTRUE(code_is_path)) {
       lang <- fs::path_ext(code)
     }
     if (is.null(lang) || !nzchar(lang)) {
       lang <- 'r'
     }
   }
+
+  theme <- resolve_theme(theme)
 
   # handle background and foreground ----
   if (missing(background)) {
@@ -107,20 +112,18 @@ snippet <- function(code,
     fs::dir_create(fs::path_dir(output_file))
   }
 
-  # write code to file to avoid quote escaping and glue injection issues ----
-  readr::write_file(code_block, fs::path(tmp_dir, 'snippet-code.txt'))
-
   # generate typ file ----
   typst_src <- glue::glue(
     readr::read_file(template_path),
-    LANG = lang,
-    TITLE = title,
+    CODE = code_block,
+    LANG = typst_string(lang),
+    TITLE = typst_string(title),
     THEME = theme_path(theme, tmp_dir),
-    STYLE = style,
-    BACKGROUND = background,
-    FOREGROUND = foreground,
+    STYLE = typst_string(style),
+    BACKGROUND = typst_string(background),
+    FOREGROUND = typst_string(foreground),
     WIDTH = width,
-    LINE_NUMBERS = if (isTRUE(line_numbers)) '"1"' else 'none',
+    LINE_NUMBERS = if (isTRUE(line_numbers)) ', numbering: "1"' else '',
     .open = '{{', .close = '}}',
   )
 
@@ -141,18 +144,6 @@ snippet <- function(code,
   }
 
   invisible(out)
-}
-
-theme_path <- function(theme, dir = tempdir()) {
-  if (theme %in% c('auto', 'none')) {
-    return(theme)
-  }
-  if (!fs::file_exists(theme)) {
-    cli::cli_abort('Theme file {.path {theme}} not found.')
-  }
-  dest <- fs::path(dir, fs::path_file(theme))
-  fs::file_copy(theme, dest, overwrite = TRUE)
-  glue::glue('"{fs::path_file(theme)}"')
 }
 
 typr_compile <- function(input, output_file, output_format) {

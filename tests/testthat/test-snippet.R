@@ -27,24 +27,42 @@ test_that('snippet errors for missing theme file', {
 })
 
 test_that('snippet passes width to template', {
-  local_mocked_bindings(typr_compile = \(input, output_file, output_format) output_file)
+  captured_path <- tempfile(fileext = '.typ')
+  local_mocked_bindings(
+    typr_compile = \(input, output_file, output_format) {
+      fs::file_copy(input, captured_path, overwrite = TRUE)
+      output_file
+    }
+  )
   snippet('x <- 1', width = 8, output_file = tempfile(fileext = '.png'))
-  typ <- readr::read_file(fs::path(tempdir(), 'snippet.typ'))
+  typ <- readr::read_file(captured_path)
   expect_match(typ, '8in')
 })
 
 test_that('snippet enables line numbers in template', {
-  local_mocked_bindings(typr_compile = \(input, output_file, output_format) output_file)
+  captured_path <- tempfile(fileext = '.typ')
+  local_mocked_bindings(
+    typr_compile = \(input, output_file, output_format) {
+      fs::file_copy(input, captured_path, overwrite = TRUE)
+      output_file
+    }
+  )
   snippet('x <- 1', line_numbers = TRUE, output_file = tempfile(fileext = '.png'))
-  typ <- readr::read_file(fs::path(tempdir(), 'snippet.typ'))
-  expect_match(typ, 'numbering: "1"')
+  typ <- readr::read_file(captured_path)
+  expect_match(typ, 'raw\\(lang: "r", numbering: "1"', perl = TRUE)
 })
 
 test_that('snippet disables line numbers by default', {
-  local_mocked_bindings(typr_compile = \(input, output_file, output_format) output_file)
+  captured_path <- tempfile(fileext = '.typ')
+  local_mocked_bindings(
+    typr_compile = \(input, output_file, output_format) {
+      fs::file_copy(input, captured_path, overwrite = TRUE)
+      output_file
+    }
+  )
   snippet('x <- 1', output_file = tempfile(fileext = '.png'))
-  typ <- readr::read_file(fs::path(tempdir(), 'snippet.typ'))
-  expect_match(typ, 'numbering: none')
+  typ <- readr::read_file(captured_path)
+  expect_no_match(typ, 'numbering:')
 })
 
 test_that('snippet warns when clip = TRUE and format is not png', {
@@ -62,10 +80,52 @@ test_that('snippet calls copy_image_to_clipboard when clip = TRUE', {
   expect_no_error(snippet('x <- 1', format = 'png', clip = TRUE, output_file = tempfile(fileext = '.png')))
 })
 
-test_that('snippet writes code to snippet-code.txt', {
-  local_mocked_bindings(typr_compile = \(input, output_file, output_format) output_file)
+test_that('snippet writes code inline into the typst source', {
+  captured_path <- tempfile(fileext = '.typ')
+  local_mocked_bindings(
+    typr_compile = \(input, output_file, output_format) {
+      fs::file_copy(input, captured_path, overwrite = TRUE)
+      output_file
+    }
+  )
   snippet('my_code <- 42', lang = 'r', output_file = tempfile(fileext = '.png'))
-  code_file <- fs::path(tempdir(), 'snippet-code.txt')
-  expect_true(fs::file_exists(code_file))
-  expect_equal(readr::read_file(code_file), 'my_code <- 42')
+  typ <- readr::read_file(captured_path)
+  expect_match(typ, 'my_code <- 42', fixed = TRUE)
+})
+
+test_that('snippet escapes title and language strings for Typst', {
+  captured_path <- tempfile(fileext = '.typ')
+  local_mocked_bindings(
+    typr_compile = \(input, output_file, output_format) {
+      fs::file_copy(input, captured_path, overwrite = TRUE)
+      output_file
+    }
+  )
+
+  snippet(
+    'x <- 1',
+    lang = 'py"thon',
+    title = 'bad " title',
+    output_file = tempfile(fileext = '.png')
+  )
+
+  typ <- readr::read_file(captured_path)
+  expect_match(typ, 'title: "bad \\" title"', fixed = TRUE)
+  expect_match(typ, 'raw(lang: "py\\"thon"', fixed = TRUE)
+})
+
+test_that('snippet resolves installed theme names', {
+  theme <- snippet_themes()[['Flexoki Dark']]
+  captured_path <- tempfile(fileext = '.typ')
+  local_mocked_bindings(
+    typr_compile = \(input, output_file, output_format) {
+      fs::file_copy(input, captured_path, overwrite = TRUE)
+      output_file
+    }
+  )
+
+  snippet('x <- 1', theme = 'Flexoki Dark', output_file = tempfile(fileext = '.png'))
+
+  typ <- readr::read_file(captured_path)
+  expect_match(typ, normalizePath(theme, winslash = '/', mustWork = TRUE), fixed = TRUE)
 })
