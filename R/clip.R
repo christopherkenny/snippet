@@ -69,8 +69,10 @@ copy_image_to_clipboard_linux <- function(path) {
     }
 
     status <- suppressWarnings(
-      system2(bin, args = c(cmd[-1], normalizePath(path, winslash = '/', mustWork = TRUE)),
-              stdout = NULL, stderr = NULL)
+      system2(bin,
+        args = c(cmd[-1], normalizePath(path, winslash = '/', mustWork = TRUE)),
+        stdout = NULL, stderr = NULL
+      )
     )
     if (identical(status, 0L)) {
       return(invisible(status))

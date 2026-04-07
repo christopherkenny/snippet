@@ -113,12 +113,13 @@ test_that('theme_path errors for missing file', {
   expect_snapshot(error = TRUE, theme_path('/nonexistent/theme.tmTheme'))
 })
 
-test_that('theme_path returns quoted absolute path', {
+test_that('theme_path copies theme to dir and returns quoted filename', {
   theme <- unname(snippet_themes()[[1]])
-  dir <- tempdir()
+  dir <- withr::local_tempdir()
   result <- theme_path(theme, dir)
   expect_match(result, '^\\".*\\.tmTheme\\"$')
-  expect_match(result, normalizePath(theme, winslash = '/', mustWork = TRUE), fixed = TRUE)
+  expect_true(fs::file_exists(fs::path(dir, fs::path_file(theme))))
+  expect_equal(result, typst_string(fs::path_file(theme)))
 })
 
 test_that('theme_path handles repeated calls without error', {

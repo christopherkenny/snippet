@@ -106,11 +106,8 @@ snippet <- function(code,
   }
 
   # set up output ----
-  if (is.null(output_file)) {
-    output_file <- fs::file_temp(pattern = 'snippet-', ext = format)
-  } else {
-    fs::dir_create(fs::path_dir(output_file))
-  }
+  user_output_file <- output_file
+  tmp_output <- fs::path(tmp_dir, paste0('snippet.', format))
 
   # generate typ file ----
   typst_src <- glue::glue(
@@ -123,7 +120,7 @@ snippet <- function(code,
     BACKGROUND = typst_string(background),
     FOREGROUND = typst_string(foreground),
     WIDTH = width,
-    LINE_NUMBERS = if (isTRUE(line_numbers)) ', numbering: "1"' else '',
+    LINE_NUMBERS = tolower(isTRUE(line_numbers)),
     .open = '{{', .close = '}}',
   )
 
@@ -131,7 +128,16 @@ snippet <- function(code,
   readr::write_file(typst_src, typ_path)
 
   # render ----
-  out <- typr_compile(input = typ_path, output_file = output_file, output_format = format)
+  out <- typr_compile(input = typ_path, output_file = tmp_output, output_format = format)
+
+  # copy rendered file to user-specified path ----
+  if (!is.null(user_output_file)) {
+    if (fs::file_exists(tmp_output)) {
+      fs::dir_create(fs::path_dir(user_output_file))
+      fs::file_copy(tmp_output, user_output_file, overwrite = TRUE)
+    }
+    out <- user_output_file
+  }
 
   # copy to clipboard ----
   if (isTRUE(clip)) {

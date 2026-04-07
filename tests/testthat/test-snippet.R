@@ -49,7 +49,7 @@ test_that('snippet enables line numbers in template', {
   )
   snippet('x <- 1', line_numbers = TRUE, output_file = tempfile(fileext = '.png'))
   typ <- readr::read_file(captured_path)
-  expect_match(typ, 'raw\\(lang: "r", numbering: "1"', perl = TRUE)
+  expect_match(typ, 'line-numbers = true', fixed = TRUE)
 })
 
 test_that('snippet disables line numbers by default', {
@@ -62,7 +62,7 @@ test_that('snippet disables line numbers by default', {
   )
   snippet('x <- 1', output_file = tempfile(fileext = '.png'))
   typ <- readr::read_file(captured_path)
-  expect_no_match(typ, 'numbering:')
+  expect_match(typ, 'line-numbers = false', fixed = TRUE)
 })
 
 test_that('snippet warns when clip = TRUE and format is not png', {
@@ -127,5 +127,5 @@ test_that('snippet resolves installed theme names', {
   snippet('x <- 1', theme = 'Flexoki Dark', output_file = tempfile(fileext = '.png'))
 
   typ <- readr::read_file(captured_path)
-  expect_match(typ, normalizePath(theme, winslash = '/', mustWork = TRUE), fixed = TRUE)
+  expect_match(typ, fs::path_file(theme), fixed = TRUE)
 })

@@ -33,12 +33,24 @@ If you have Quarto installed, it will use its bundled Typst as a fallback.
 
 ## Usage
 
+```{r setup, include = FALSE}
+library(snippet)
+```
+
 Pass code as a string, a character vector, or a file path. Leave `code` empty to use your clipboard:
 
 ```{r example, eval = FALSE}
 library(snippet)
 
 snippet('fit <- lm(mpg ~ wt, data = mtcars)\nsummary(fit)')
+```
+
+```{r example-img, echo = FALSE, message = FALSE, warning = FALSE}
+snippet(
+  'fit <- lm(mpg ~ wt, data = mtcars)\nsummary(fit)',
+  output_file = 'man/figures/README-example.png'
+)
+knitr::include_graphics('man/figures/README-example.png')
 ```
 
 ### Themes
@@ -50,6 +62,15 @@ snippet(
   'fit <- lm(mpg ~ wt, data = mtcars)',
   theme = 'Flexoki Dark'
 )
+```
+
+```{r themes-img, echo = FALSE, message = FALSE, warning = FALSE}
+snippet(
+  'fit <- lm(mpg ~ wt, data = mtcars)',
+  theme = 'Flexoki Dark',
+  output_file = 'man/figures/README-themes.png'
+)
+knitr::include_graphics('man/figures/README-themes.png')
 ```
 
 Install additional themes by name with `snippet_install_theme()`. See the full list with `snippet_known_themes()`:
@@ -68,18 +89,17 @@ snippet_install_theme('https://example.com/my-theme.tmTheme')
 snippet_install_theme('/path/to/my-theme.tmTheme')
 ```
 
-Or convert any VS Code JSON theme with `convert_theme()`:
-
-```{r custom-theme, eval = FALSE}
-convert_theme('path/to/my-vscode-theme.json')
-```
-
 ### Window styles
 
 ```{r styles, eval = FALSE}
 snippet('x <- 1', style = 'mac')      # macOS traffic lights
 snippet('x <- 1', style = 'windows')  # Windows controls
 snippet('x <- 1', style = 'none')     # no chrome
+```
+
+```{r styles-img, echo = FALSE, message = FALSE, warning = FALSE}
+snippet('x <- 1', style = 'mac', output_file = 'man/figures/README-styles-mac.png')
+knitr::include_graphics('man/figures/README-styles-mac.png')
 ```
 
 ### Line numbers and width
@@ -92,9 +112,19 @@ snippet(
 )
 ```
 
+```{r extras-img, echo = FALSE, message = FALSE, warning = FALSE}
+snippet(
+  'x <- 1:10\nmean(x)\nsd(x)',
+  line_numbers = TRUE,
+  width = 4,
+  output_file = 'man/figures/README-extras.png'
+)
+knitr::include_graphics('man/figures/README-extras.png')
+```
+
 ### Copy to clipboard
 
-Set `clip = TRUE` to attempt to copy the rendered PNG to your system clipboard immediately after rendering. This is a convenience feature, is only supported for PNG output, and may depend on platform-specific clipboard tools, especially on Linux:
+Set `clip = TRUE` to copy the rendered PNG to your system clipboard immediately after rendering. Clipboard support may depend on platform-specific tools, especially on Linux:
 
 ```{r clip, eval = FALSE}
 snippet('x <- 1:10', clip = TRUE)

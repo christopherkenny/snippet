@@ -191,5 +191,7 @@ theme_path <- function(theme, dir = tempdir()) {
   if (!fs::file_exists(theme)) {
     cli::cli_abort('Theme file {.path {theme}} not found.')
   }
-  typst_string(typst_path(theme))
+  dest <- fs::path(dir, fs::path_file(theme))
+  fs::file_copy(theme, dest, overwrite = TRUE)
+  typst_string(fs::path_file(theme))
 }

@@ -36,6 +36,8 @@ library(snippet)
 snippet('fit <- lm(mpg ~ wt, data = mtcars)\nsummary(fit)')
 ```
 
+<img src="man/figures/README-example.png" alt="" width="100%" />
+
 ### Themes
 
 Two [Flexoki](https://stephango.com/flexoki) themes are bundled. List
@@ -47,6 +49,8 @@ snippet(
   theme = 'Flexoki Dark'
 )
 ```
+
+<img src="man/figures/README-themes.png" alt="" width="100%" />
 
 Install additional themes by name with `snippet_install_theme()`. See
 the full list with `snippet_known_themes()`:
@@ -65,12 +69,6 @@ snippet_install_theme('https://example.com/my-theme.tmTheme')
 snippet_install_theme('/path/to/my-theme.tmTheme')
 ```
 
-Or convert any VS Code JSON theme with `convert_theme()`:
-
-``` r
-convert_theme('path/to/my-vscode-theme.json')
-```
-
 ### Window styles
 
 ``` r
@@ -78,6 +76,8 @@ snippet('x <- 1', style = 'mac')      # macOS traffic lights
 snippet('x <- 1', style = 'windows')  # Windows controls
 snippet('x <- 1', style = 'none')     # no chrome
 ```
+
+<img src="man/figures/README-styles-mac.png" alt="" width="100%" />
 
 ### Line numbers and width
 
@@ -89,12 +89,13 @@ snippet(
 )
 ```
 
+<img src="man/figures/README-extras.png" alt="" width="100%" />
+
 ### Copy to clipboard
 
-Set `clip = TRUE` to attempt to copy the rendered PNG to your system
-clipboard immediately after rendering. This is a convenience feature, is
-only supported for PNG output, and may depend on platform-specific
-clipboard tools, especially on Linux:
+Set `clip = TRUE` to copy the rendered PNG to your system clipboard
+immediately after rendering. Clipboard support may depend on
+platform-specific tools, especially on Linux:
 
 ``` r
 snippet('x <- 1:10', clip = TRUE)

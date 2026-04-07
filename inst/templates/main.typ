@@ -2,6 +2,15 @@
 #set raw(theme: {{THEME}})
 #set text(fill: rgb({{FOREGROUND}}))
 
+#let line-numbers = {{LINE_NUMBERS}}
+#show raw.line: it => {
+  if line-numbers {
+    box(stack(dir: ltr, box(width: 2em)[#it.number], it.body))
+  } else {
+    it
+  }
+}
+
 #let titled-raw-block(body, title: none, style: "mac", background: luma(230)) = {
   // Define button layouts using stack
   let mac-buttons = stack(
@@ -114,5 +123,5 @@ let win-buttons = stack(
   title: {{TITLE}},
   style: {{STYLE}},
   background: rgb({{BACKGROUND}}),
-  raw(lang: {{LANG}}{{LINE_NUMBERS}}, "{{CODE}}")
+  raw(lang: {{LANG}}, block: true, "{{CODE}}")
 )

@@ -28,7 +28,6 @@ Imports:
     typr,
     xml2
 Suggests:
-    jsonlite,
     rstudioapi,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3

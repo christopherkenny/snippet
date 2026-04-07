@@ -9,4 +9,4 @@
 library(testthat)
 library(snippet)
 
-test_check("snippet")
+test_check('snippet')
