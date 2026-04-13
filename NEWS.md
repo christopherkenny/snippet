@@ -1,7 +1,6 @@
 # snippet 0.0.1
 
 * `snippet()` renders typeset code snippets using Typst with syntax highlighting. Key arguments include:
-  * `clip`: when `TRUE`, copies the rendered PNG to the system clipboard after rendering.
   * `lang`: defaults to `'r'` when no language can be inferred.
   * `line_numbers`: displays line numbers in the code block.
   * `width`: controls the output width in inches (default `5`).

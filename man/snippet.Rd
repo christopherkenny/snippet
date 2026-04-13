@@ -14,7 +14,6 @@ snippet(
   width = 5,
   line_numbers = FALSE,
   format = c("png", "pdf", "svg"),
-  clip = FALSE,
   output_file = NULL
 )
 }
@@ -40,11 +39,6 @@ file. Use \code{'auto'} or \code{'none'} for Typst's built-in options.}
 \item{line_numbers}{Whether to show line numbers. Defaults to \code{FALSE}.}
 
 \item{format}{Output format, one of \code{'pdf'}, \code{'png'}, or \code{'svg'}.}
-
-\item{clip}{Whether to copy the rendered image to the system clipboard.
-Only supported when \code{format = 'png'}. Clipboard support is best effort and
-may depend on platform-specific tools, especially on Linux. Defaults to
-\code{FALSE}.}
 
 \item{output_file}{File path to write the rendered result. If \code{NULL}, a
 temporary file is used.}

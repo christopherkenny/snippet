@@ -1,16 +1,15 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# snippet
+# snippet <a href="https://christopherkenny.github.io/snippet/"><img src="man/figures/logo.png" align="right" height="134" alt="snippet website" /></a>
 
 <!-- badges: start -->
 
 <!-- badges: end -->
 
 `snippet` creates shareable, syntax-highlighted code images directly
-from your R session — like [carbon.now.sh](https://carbon.now.sh) but
-without leaving R. It uses [Typst](https://typst.app) for rendering, so
-images are crisp at any size and fully themeable.
+from your R session. It uses [Typst](https://typst.app) for rendering,
+which can create `png`, `pdf`, or `svg` outputs.
 
 ## Installation
 
@@ -23,7 +22,8 @@ pak::pak('christopherkenny/snippet')
 
 `snippet` also requires [Typst](https://typst.app) to be installed on
 your system. If you have Quarto installed, it will use its bundled Typst
-as a fallback.
+as a fallback. See [typr](https://christophertkenny.com/typr/) for more
+details on the fallback strategy.
 
 ## Usage
 
@@ -71,10 +71,10 @@ snippet_install_theme('/path/to/my-theme.tmTheme')
 
 ### Window styles
 
+The package supports Windows (default) and Mac browser controls.
+
 ``` r
-snippet('x <- 1', style = 'mac')      # macOS traffic lights
-snippet('x <- 1', style = 'windows')  # Windows controls
-snippet('x <- 1', style = 'none')     # no chrome
+snippet('x <- 1', style = 'mac')
 ```
 
 <img src="man/figures/README-styles-mac.png" alt="" width="100%" />
@@ -90,13 +90,3 @@ snippet(
 ```
 
 <img src="man/figures/README-extras.png" alt="" width="100%" />
-
-### Copy to clipboard
-
-Set `clip = TRUE` to copy the rendered PNG to your system clipboard
-immediately after rendering. Clipboard support may depend on
-platform-specific tools, especially on Linux:
-
-``` r
-snippet('x <- 1:10', clip = TRUE)
-```

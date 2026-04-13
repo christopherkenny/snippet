@@ -17,10 +17,6 @@
 #' @param width Width of the rendered output in inches. Defaults to `5`.
 #' @param line_numbers Whether to show line numbers. Defaults to `FALSE`.
 #' @param format Output format, one of `'pdf'`, `'png'`, or `'svg'`.
-#' @param clip Whether to copy the rendered image to the system clipboard.
-#' Only supported when `format = 'png'`. Clipboard support is best effort and
-#' may depend on platform-specific tools, especially on Linux. Defaults to
-#' `FALSE`.
 #' @param output_file File path to write the rendered result. If `NULL`, a
 #' temporary file is used.
 #'
@@ -40,16 +36,10 @@ snippet <- function(code,
                     width = 5,
                     line_numbers = FALSE,
                     format = c('png', 'pdf', 'svg'),
-                    clip = FALSE,
                     output_file = NULL) {
   style <- match.arg(style)
   format <- match.arg(format)
   code_is_path <- FALSE
-
-  if (isTRUE(clip) && format != 'png') {
-    cli::cli_warn('{.arg clip} is only supported for PNG format. Skipping.')
-    clip <- FALSE
-  }
 
   tmp_dir <- fs::dir_create(fs::file_temp(pattern = 'snippet-'))
 
@@ -137,11 +127,6 @@ snippet <- function(code,
       fs::file_copy(tmp_output, user_output_file, overwrite = TRUE)
     }
     out <- user_output_file
-  }
-
-  # copy to clipboard ----
-  if (isTRUE(clip)) {
-    copy_image_to_clipboard(out)
   }
 
   # open in viewer ----

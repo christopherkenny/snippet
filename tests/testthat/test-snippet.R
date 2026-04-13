@@ -65,21 +65,6 @@ test_that('snippet disables line numbers by default', {
   expect_match(typ, 'line-numbers = false', fixed = TRUE)
 })
 
-test_that('snippet warns when clip = TRUE and format is not png', {
-  local_mocked_bindings(typr_compile = \(input, output_file, output_format) output_file)
-  expect_snapshot({
-    snippet('x <- 1', format = 'pdf', clip = TRUE, output_file = tempfile(fileext = '.pdf'))
-  })
-})
-
-test_that('snippet calls copy_image_to_clipboard when clip = TRUE', {
-  local_mocked_bindings(
-    typr_compile = \(input, output_file, output_format) output_file,
-    copy_image_to_clipboard = \(path) path
-  )
-  expect_no_error(snippet('x <- 1', format = 'png', clip = TRUE, output_file = tempfile(fileext = '.png')))
-})
-
 test_that('snippet writes code inline into the typst source', {
   captured_path <- tempfile(fileext = '.typ')
   local_mocked_bindings(

@@ -115,7 +115,7 @@ test_that('theme_path errors for missing file', {
 
 test_that('theme_path copies theme to dir and returns quoted filename', {
   theme <- unname(snippet_themes()[[1]])
-  dir <- withr::local_tempdir()
+  dir <- tempdir()
   result <- theme_path(theme, dir)
   expect_match(result, '^\\".*\\.tmTheme\\"$')
   expect_true(fs::file_exists(fs::path(dir, fs::path_file(theme))))
