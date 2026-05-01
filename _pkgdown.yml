@@ -2,6 +2,7 @@ url: https://christopherkenny.github.io/snippet/
 
 template:
   bootstrap: 5
+  package: ctktemplate
 
 reference:
 - title: Create code snippets
